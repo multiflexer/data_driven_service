@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Send Events</title>
+    <link href="/css/style.css" rel="stylesheet">
+    <script> {{ content_js|safe }} </script>
+</head>
+<body class="style_color">
+    <form id="myForm">
+    <div class="fixed-textarea">
+        <textarea id="myName" rows="20" cols="50" name="data" placeholder="{{ example_data }}"></textarea>
+        <input class="button" type="submit" value="Отправить события">
+    </div>
+    </form>
+</body>
+</html>
