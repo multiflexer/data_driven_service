@@ -13,7 +13,7 @@ window.addEventListener( 'load', function () {
 
     // Define what happens in case of error
     XHR.addEventListener( 'error', function( event ) {
-      alert( 'Что-то сломалось при отправки задачи в очередь' );
+      alert( 'Что-то пошло не так' );
     } );
     // Set up our request
     XHR.open( 'POST', '{{ post_endpoint|safe }}' );

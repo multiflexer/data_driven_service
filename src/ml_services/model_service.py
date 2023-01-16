@@ -16,7 +16,7 @@ class ModelService:
             self.model: LogisticRegression = pickle.load(f)
 
     def predict(self, vec: TfidfVectorizer):
-        result = self.model.predict([vec])[0]
+        result = self.model.predict(vec)[0]
         return self.class_mapping[result]
 
 

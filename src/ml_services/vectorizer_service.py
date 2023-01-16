@@ -13,7 +13,7 @@ class VectorizerService:
             self.vectorizer: TfidfVectorizer = pickle.load(f)
 
     def vectorize(self, pre_processed_text: str):
-        result = self.vectorizer.transform(pre_processed_text)
+        result = self.vectorizer.transform([pre_processed_text])
         return result
 
 

@@ -1,12 +1,16 @@
 from urllib.parse import urljoin
 
 import uvicorn
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request, Form, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import config
+from schemas.api import ResponsePredict
+from ml_services.model_service import get_model_service, ModelService
+from ml_services.preprocessor_service import get_preprocessor_service, PreprocessorService
+from ml_services.vectorizer_service import get_vectorizer_service, VectorizerService
 
 app = FastAPI()
 
@@ -35,11 +39,15 @@ def index(request: Request):
                                        })
 
 
-@app.post("/comment")
-async def comment_post(data: str = Form()):
-    print("hey")
-    print(data)
-    return ''
+@app.post("/comment", response_model=ResponsePredict)
+def comment_post(data: str = Form(),
+                 model_service: ModelService = Depends(get_model_service),
+                 vectorizer_service: VectorizerService = Depends(get_vectorizer_service),
+                 preprocessor_service: PreprocessorService = Depends(get_preprocessor_service)):
+    preprocessed_text = preprocessor_service.preprocess_text(data)
+    vectorized_text = vectorizer_service.vectorize(preprocessed_text)
+    class_result = model_service.predict(vectorized_text)
+    return ResponsePredict(class_name=class_result)
 
 
 if __name__ == "__main__":
