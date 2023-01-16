@@ -1,7 +1,9 @@
+import sys
 from urllib.parse import urljoin
+from http import HTTPStatus
 
 import uvicorn
-from fastapi import FastAPI, Request, Form, Depends
+from fastapi import FastAPI, Request, Form, Depends, HTTPException
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -34,6 +36,7 @@ app.add_middleware(
 def index(request: Request):
     return templates.TemplateResponse("index.html",
                                       {"request": request,
+                                       "example_data": "Всё хорошо, прекрасная маркиза!",
                                        "content_js": templates.get_template("form.js").render(
                                            post_endpoint=urljoin(config.API_BASE, "/comment"))
                                        })
@@ -44,9 +47,13 @@ def comment_post(data: str = Form(),
                  model_service: ModelService = Depends(get_model_service),
                  vectorizer_service: VectorizerService = Depends(get_vectorizer_service),
                  preprocessor_service: PreprocessorService = Depends(get_preprocessor_service)):
-    preprocessed_text = preprocessor_service.preprocess_text(data)
-    vectorized_text = vectorizer_service.vectorize(preprocessed_text)
-    class_result = model_service.predict(vectorized_text)
+    try:
+        preprocessed_text = preprocessor_service.preprocess_text(data)
+        vectorized_text = vectorizer_service.vectorize(preprocessed_text)
+        class_result = model_service.predict(vectorized_text)
+    except Exception as e:
+        print(e, file=sys.stderr)
+        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Something went wrong")
     return ResponsePredict(class_name=class_result)
 
 
