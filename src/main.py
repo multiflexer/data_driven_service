@@ -1,9 +1,10 @@
 import sys
+import json
 from urllib.parse import urljoin
 from http import HTTPStatus
 
 import uvicorn
-from fastapi import FastAPI, Request, Form, Depends, HTTPException
+from fastapi import FastAPI, Request, Form, Depends, HTTPException, Query
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,6 +14,8 @@ from schemas.api import ResponsePredict
 from ml_services.model_service import get_model_service, ModelService
 from ml_services.preprocessor_service import get_preprocessor_service, PreprocessorService
 from ml_services.vectorizer_service import get_vectorizer_service, VectorizerService
+from services.db_service import get_db_service, DbService
+from schemas.api import PrettyJSONResponse
 
 app = FastAPI()
 
@@ -55,6 +58,15 @@ def comment_post(data: str = Form(),
         print(e, file=sys.stderr)
         raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Something went wrong")
     return ResponsePredict(class_name=class_result)
+
+
+@app.get("/data", response_class=PrettyJSONResponse)
+def get_data(page_number: int = Query(alias="page[number]", ge=1, default=1),
+             page_size: int = Query(alias="page[size]", ge=1, default=50),
+             db_service: DbService = Depends(get_db_service)):
+    limit = page_size
+    offset = (page_number - 1) * page_size
+    return db_service.get_data_list(limit, offset)
 
 
 if __name__ == "__main__":
