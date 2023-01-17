@@ -39,7 +39,7 @@ app.add_middleware(
 def index(request: Request):
     return templates.TemplateResponse("index.html",
                                       {"request": request,
-                                       "example_data": "Всё хорошо, прекрасная маркиза",
+                                       "example_data": "Напишите какой-нибудь комментарий",
                                        "content_js": templates.get_template("form.js").render(
                                            post_endpoint=urljoin(config.API_BASE, "/comment"))
                                        })
