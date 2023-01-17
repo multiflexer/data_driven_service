@@ -4,6 +4,10 @@ services:
     image: model_app
     environment:
       - API_BASE=${API_BASE}
+      - DB_NAME=${POSTGRES_DB}
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_HOST=postgres
     logging:
       driver: "json-file"
       options:
